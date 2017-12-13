@@ -1,3 +1,7 @@
+function dispatchEventOnNode(node, type) {
+	node.dispatchEvent(new Event(type, {bubbles: true, cancelable: true}));
+}
+
 function isProductPage(){
 	var pathname = window.location.pathname;
 	var result = false;
@@ -31,18 +35,18 @@ function buyNow(){
 		if(buyBtn){
 			result = true;
 			buyBtn.click();
-			var okbtn = document.getElementsByClassName("ok")[0] || document.getElementsByClassName("ctrl-ui-sku")[0].getElementsByClassName("gobuy")[0];//移动版本还有确定按钮
-			if(!!okbtn){
-				okbtn.click();
-			}else{
-				console.log("no ok btn");
-			}
+			try{
+				var okbtn = document.getElementsByClassName("ok")[0] || document.getElementsByClassName("ctrl-ui-sku")[0].getElementsByClassName("gobuy")[0];//移动版本还有确定按钮
+				if(!!okbtn){
+					okbtn.click();
+				}
+			}catch(e){
 
+			}
 		}
 	}
 	return result;
 }
-
 /*
 * 立即提交订单
 */
@@ -52,7 +56,25 @@ function orderNow(){
 		var btn = document.getElementsByClassName("go-btn")[0] || document.getElementsByClassName("order-submitOrder")[0].getElementsByClassName("action")[0].getElementsByTagName("span")[0];
 		if(btn){
 			result = true;
-			btn.click();
+			try{
+				var _input = (document.getElementsByClassName("mobileNO")[0] || document.getElementsByClassName("order-eticketDesc")[0]).getElementsByTagName("input")[0];
+				if(!phone){
+					runFlag = false;
+					return;
+				}else{
+					_input.value=phone;
+					dispatchEventOnNode(_input,"input");
+					dispatchEventOnNode(_input,"focus");
+					dispatchEventOnNode(_input,"blur");
+					console.log("设置手机号");
+				}
+			}catch(e){
+				console.log("设置手机号失败"+e);
+				runFlag = false;
+			}
+			if(runFlag){
+				btn.click();
+			}
 		}
 	}
 	return result;
@@ -76,6 +98,7 @@ function job(){
 var repeatNumPerSecond=5;//每秒执行次数
 var runFlag = isOrderPage();
 var jobTimer;
+var phone;
 /**
 * 初始化设置
 */
@@ -90,10 +113,13 @@ chrome.runtime.onMessage.addListener(
     	if(request.keyWord == "true"){//停止
 			runFlag = false;
 			console.log("stop");
-			clearTimeout(jobTimer);
+			clearInterval(jobTimer);
     	}else{
     		runFlag = true;
 			init();
+    	}
+    	if(!!request.phone){
+    		phone = request.phone;
     	}
 	}
 );
