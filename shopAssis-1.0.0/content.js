@@ -116,7 +116,7 @@ function job(){
 	}
 }
 
-var repeatNumPerSecond=50;//每秒执行次数
+var repeatNumPerSecond=60;//每秒执行次数
 var runFlag = isOrderPage();
 var jobTimer;
 var phone;
