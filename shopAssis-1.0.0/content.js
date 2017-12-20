@@ -2,6 +2,15 @@ function dispatchEventOnNode(node, type) {
 	node.dispatchEvent(new Event(type, {bubbles: true, cancelable: true}));
 }
 
+function isMiaoShaPage(){
+	var origin = window.location.origin;
+	var result = false;
+	if( (origin.indexOf("miao.item.taobao.com") > -1)){
+		result = true;
+	}
+	return result;
+}
+
 function isProductPage(){
 	var pathname = window.location.pathname;
 	var result = false;
@@ -21,6 +30,18 @@ function isOrderPage(){
 	if((pathname.indexOf("buy_now.jhtml") > -1) 
 		|| (pathname.indexOf("confirm_order.htm") > -1) || (pathname.indexOf("confirmOrderWap.htm") > -1) || (pathname.indexOf("order.html") > -1)){
 		result = true;
+	}
+	return result;
+}
+
+function mishaNow(){
+	var result = false;
+	if(isMiaoShaPage()){
+		var miaoShaBtn = document.getElementsByClassName("tb-sk-button-refresh")[0];
+		if(!!miaoShaBtn){
+			result = true;
+			miaoShaBtn.click();
+		}
 	}
 	return result;
 }
@@ -87,7 +108,7 @@ function job(){
 	if(!runFlag){//停止运行中的插件
 		return;
 	}
-	if(buyNow() || orderNow()){
+	if(buyNow() || orderNow() || mishaNow()){
 		//执行中
 		console.log("抢购中...");
 	}else{
@@ -95,7 +116,7 @@ function job(){
 	}
 }
 
-var repeatNumPerSecond=5;//每秒执行次数
+var repeatNumPerSecond=50;//每秒执行次数
 var runFlag = isOrderPage();
 var jobTimer;
 var phone;
